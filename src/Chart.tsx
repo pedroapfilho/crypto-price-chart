@@ -39,6 +39,11 @@ const getPrices = async () => {
   return prices;
 };
 
+const formatter = new Intl.NumberFormat("en-US", {
+  style: "currency",
+  currency: "USD",
+});
+
 const getXValue = (d: Data) => new Date(d[0]);
 
 const getYValue = (d: Data) => d[1];
@@ -174,10 +179,8 @@ const Chart = () => {
           left={tooltipLeft}
           style={tooltipStyles}
         >
-          <b>{`${timeFormat("%H:%M %b %d")(
-            new Date(getXValue(tooltipData))
-          )}`}</b>
-          : ${getYValue(tooltipData).toFixed(2)}
+          {`${timeFormat("%b %d %H:%M ")(new Date(getXValue(tooltipData)))}`}:{" "}
+          <b>{formatter.format(getYValue(tooltipData))}</b>
         </TooltipWithBounds>
       ) : null}
     </Container>
