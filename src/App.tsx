@@ -12,10 +12,22 @@ const Background = styled.div`
   box-sizing: border-box;
 `;
 
+const Container = styled.div`
+  position: relative;
+  background-color: #201d47;
+  width: 600px;
+  min-width: 300px;
+  height: 400px;
+  border-radius: 40px;
+  overflow: hidden;
+`;
+
 const App = () => {
   return (
     <Background>
-      <Chart />
+      <Container>
+        <Chart />
+      </Container>
     </Background>
   );
 };

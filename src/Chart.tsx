@@ -1,7 +1,6 @@
 import { TouchEvent, MouseEvent } from "react";
 import { useQuery } from "react-query";
 import useMeasure from "react-use-measure";
-import styled from "styled-components";
 import { TooltipWithBounds, useTooltip, defaultStyles } from "@visx/tooltip";
 import { timeFormat } from "d3-time-format";
 import { Group } from "@visx/group";
@@ -12,20 +11,6 @@ import { Bar, Line, LinePath } from "@visx/shape";
 import { curveMonotoneX } from "@visx/curve";
 
 type Data = [number, number];
-
-const Container = styled.div`
-  position: relative;
-  background-color: #201d47;
-  width: 600px;
-  min-width: 300px;
-  height: 400px;
-  border-radius: 40px;
-  overflow: hidden;
-`;
-
-const StyledSVG = styled.svg`
-  overflow: visible;
-`;
 
 const getPrices = async () => {
   const res = await fetch(
@@ -49,8 +34,6 @@ const getXValue = (d: Data) => new Date(d[0]);
 const getYValue = (d: Data) => d[1];
 
 const bisectDate = bisector<Data, Date>(getXValue).left;
-
-const margin = 50;
 
 const tooltipStyles = {
   ...defaultStyles,
@@ -78,16 +61,13 @@ const Chart = () => {
 
   if (!data) return null;
 
-  const innerWidth = width - 2 * margin;
-  const innerHeight = height - 2 * margin;
-
   const xScale = scaleTime({
-    range: [margin, innerWidth + margin],
+    range: [0, width],
     domain: extent(data, getXValue) as [Date, Date],
   });
 
   const yScale = scaleLinear<number>({
-    range: [innerHeight + margin, margin],
+    range: [height, 0],
     round: true,
     domain: [
       Math.min(...data.map(getYValue)),
@@ -97,8 +77,13 @@ const Chart = () => {
   });
 
   return (
-    <Container ref={ref}>
-      <StyledSVG width={width} height={height}>
+    <>
+      <svg
+        ref={ref}
+        width="100%"
+        height="100%"
+        viewBox={`0 0 ${width} ${height}`}
+      >
         <Group>
           <LinePath<Data>
             data={data}
@@ -112,10 +97,8 @@ const Chart = () => {
 
         <Group>
           <Bar
-            x={margin}
-            y={margin}
-            width={innerWidth}
-            height={innerHeight}
+            width={width}
+            height={height}
             fill="transparent"
             onMouseMove={(
               event: TouchEvent<SVGRectElement> | MouseEvent<SVGRectElement>
@@ -146,8 +129,8 @@ const Chart = () => {
         {tooltipData ? (
           <Group>
             <Line
-              from={{ x: tooltipLeft, y: margin }}
-              to={{ x: tooltipLeft, y: innerHeight + margin }}
+              from={{ x: tooltipLeft, y: 0 }}
+              to={{ x: tooltipLeft, y: height }}
               stroke="#59588D"
               strokeWidth={1}
               pointerEvents="none"
@@ -170,7 +153,7 @@ const Chart = () => {
             />
           </Group>
         ) : null}
-      </StyledSVG>
+      </svg>
 
       {tooltipData ? (
         <TooltipWithBounds
@@ -183,7 +166,7 @@ const Chart = () => {
           <b>{formatter.format(getYValue(tooltipData))}</b>
         </TooltipWithBounds>
       ) : null}
-    </Container>
+    </>
   );
 };
 
